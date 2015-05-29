@@ -5,25 +5,35 @@ angular.module('openit.controllers', [])
         message: "I'm data from a service",
         defaultlimit: 20,
         defaultdelay : 500,
-        server_url : getServerUrl(),
+        
+    };
+})
+
+.factory('LicenseMonitorData', function() {
+    return {
+    	jsonData : null ,
+        processData :function( data )
+        {
+        	var xmldoc = XMLTools.domParser( data );
+        	Logging.trace (data);
+        	this.jsonData =  JSON.parse( xml2json ( xmldoc, '') );
+        },
     };
 })
 
 
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout , $http) {
+
+.controller('AppCtrl', function($scope, $ionicModal, $timeout , $http , Configurations, LicenseMonitorData ) {
   
   $scope.prepareLicenseStatus = function () {
 	Logging.debug ( "Retriving xml data" );
 	$http.get('/license_status.xml').
 	  success(function(data, status, headers, config) {
-		var xmldoc = XMLTools.domParser( data )
-		Logging.trace (data);
-		var json_data = JSON.parse( xml2json ( xmldoc, '') );
+	  LicenseMonitorData.processData( data );	
 	  }).
 	  error(function(data, status, headers, config) {
-		// called asynchronously if an error occurs
-		// or server returns response with an error status.
+		Logging.error ( "Failed to retrieve data. status: " + status )
 	 });
   }
   
