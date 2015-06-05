@@ -11,15 +11,44 @@ angular.module('openit.controllers', [])
 
 .factory('LicenseMonitorData', function() {
     return {
-    	jsonData : null ,
+    	jsonData : null,
+		vlicense : null,
         processData :function( data )
         {
         	var xmldoc = XMLTools.domParser( data );
-        	Logging.trace (data);
         	this.jsonData =  JSON.parse( xml2json ( xmldoc, '') );
+       		this.vlicense = this.jsonData.realtime.vendorlicenses;
+        	this.calculateProductLicenses();
         },
+        calculateProductLicenses : function ()
+        {
+        	var prod_total_license = 0;
+        	var prod_total_use = 0;
+			getArraySubObjects(this.vlicense.vendorlicense).forEach(function(entry) 
+			{
+				getArraySubObjects(entry.daemons.daemon.features.feature).forEach ( function (feature) 
+				{
+					prod_total_license =parseInt(prod_total_license) +  parseInt( feature.licenses ) ;
+					if ( feature.online != null )
+					{
+						
+						getArraySubObjects(feature.online.entry).forEach( function (user){
+							prod_total_use = parseInt( prod_total_use ) + parseInt(user.count);
+						});
+					}
+				});
+				entry[ "licenses" ] = prod_total_license;
+				entry[ "used" ] = prod_total_use;
+			});
+
+        },
+        
+        
+        
     };
 })
+
+
 
 
 
@@ -30,16 +59,16 @@ angular.module('openit.controllers', [])
 	Logging.debug ( "Retriving xml data" );
 	$http.get('/license_status.xml').
 	  success(function(data, status, headers, config) {
-	  LicenseMonitorData.processData( data );	
-	  }).
-	  error(function(data, status, headers, config) {
+	  LicenseMonitorData.processData( data );
+	  $scope.vlicense = LicenseMonitorData.vlicense.vendorlicense;
+	 
+	  })
+	  .error(function(data, status, headers, config) {
 		Logging.error ( "Failed to retrieve data. status: " + status )
 	 });
   }
   
-  $scope.xmlToJson = function () {
-	
-  }
+
   
   // Form data for the login modal
   $scope.loginData = {};

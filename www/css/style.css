@@ -1,1 +1,19 @@
 /* Empty. Add your own CSS if you like */
+.vlicense
+{
+	border-style: none;
+}
+.circle {
+	border-radius: 50%;
+	width: 150px;
+	height: 150px; 
+	/* width and height can be anything, as long as they're equal */
+}
+.red
+{
+	background-color:#FF0000;
+}
+.green
+{
+	background-color:#00FF00;
+}

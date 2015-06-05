@@ -1,3 +1,12 @@
+function getArraySubObjects(data) {
+    if (data.constructor != Array) {
+        var temp = [];
+        temp.push(data)
+        return temp
+    } else
+        return data;
+}
+
 var XMLTools = 
 {
 	domParser : function (xml_string) {

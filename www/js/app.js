@@ -52,7 +52,7 @@ angular.module('openit', ['ionic', 'openit.controllers'])
       views: {
         'menuContent': {
           templateUrl: "templates/playlists.html",
-          controller: 'PlaylistsCtrl'
+          controller: 'AppCtrl'
         }
       }
     })
