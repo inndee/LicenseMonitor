@@ -1,0 +1,28 @@
+<ion-view view-title="Product Listing">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="license in vlicense" href="#/app/products/product={{license.name}}" class="vlicense">
+
+	<div class="list card">
+		<div class="item item-avatar">
+			<img class="circle green">
+			<h2>{{license.name}}</h2>
+			<p>Type: {{license.type}}</p>
+		</div>
+
+		<div class="item item-text-wrap">
+			<p>Total Licenses: {{license.licenses}}</p>
+			<p>In use licenses: {{license.used}}</p>
+			<div class="meterbar">
+				<hr width="{{( license.used / license.licenses ) * 100 }}%" align="left"/>
+			</div>
+		
+		</div>
+		
+	</div>
+        
+		
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>

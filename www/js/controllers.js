@@ -5,7 +5,7 @@ angular.module('openit.controllers', [])
         message: "I'm data from a service",
         defaultlimit: 20,
         defaultdelay : 500,
-        
+        lsUrl : "/license_status.xml",
     };
 })
 
@@ -13,11 +13,13 @@ angular.module('openit.controllers', [])
     return {
     	jsonData : null,
 		vlicense : null,
+		colltime : null,
         processData :function( data )
         {
         	var xmldoc = XMLTools.domParser( data );
         	this.jsonData =  JSON.parse( xml2json ( xmldoc, '') );
        		this.vlicense = this.jsonData.realtime.vendorlicenses;
+       		this.colltime = this.jsonData.realtime.meta.content;
         	this.calculateProductLicenses();
         },
         calculateProductLicenses : function ()
@@ -53,25 +55,37 @@ angular.module('openit.controllers', [])
 
 
 
-.controller('AppCtrl', function($scope, $ionicModal, $timeout , $http , Configurations, LicenseMonitorData ) {
+.controller('AppCtrl', function($scope, $ionicModal, $timeout , $http , $stateParams ,  Configurations, LicenseMonitorData ) {
   
-  $scope.prepareLicenseStatus = function () {
-	Logging.debug ( "Retriving xml data" );
-	$http.get('/license_status.xml').
-	  success(function(data, status, headers, config) {
-	  LicenseMonitorData.processData( data );
-	  $scope.vlicense = LicenseMonitorData.vlicense.vendorlicense;
-	 
-	  })
-	  .error(function(data, status, headers, config) {
-		Logging.error ( "Failed to retrieve data. status: " + status )
-	 });
-  }
-  
+  	$scope.vlicense = [];
+	var ctime = (new Date).getTime()/1000;
+	var diff = ctime - LicenseMonitorData.colltime; 
+	Logging.debug ( "Diff: " + diff );
+	if ( LicenseMonitorData.colltime == null || diff > 500 )
+	{
+		var randomNum = Math.round(Math.random() * 10000);
+		$http.get( Configurations.lsUrl + "?rand=" + randomNum ).
+		  success(function(data, status, headers, config) {
 
+		  
+		  Logging.debug ( "Retriving xml data from:" + Configurations.lsUrl );
+		  
+		  LicenseMonitorData.processData( data );
+		  $scope.vlicense = null;
+		  $scope.vlicense = LicenseMonitorData.vlicense.vendorlicense ;
+		  
+
+		  })
+		  .error(function(data, status, headers, config) {
+			Logging.error ( "Failed to retrieve data. status: " + status )
+		 });
+	}
+	
+
+	
   
   // Form data for the login modal
-  $scope.loginData = {};
+  $scope.server = {};
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -92,8 +106,9 @@ angular.module('openit.controllers', [])
 
   // Perform the login action when the user submits the login form
   $scope.doLogin = function() {
-    console.log('Doing login', $scope.loginData);
-
+    
+	Configurations.lsUrl = "http://" + $scope.server.name + ":" + $scope.server.port + "/loadxml.php";
+	console.log('Doing login', $scope.server, Configurations.lsUrl);
     // Simulate a login delay. Remove this and replace with your login
     // code if using a login system
     $timeout(function() {

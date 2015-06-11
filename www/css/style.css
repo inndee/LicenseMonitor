@@ -17,3 +17,21 @@
 {
 	background-color:#00FF00;
 }
+
+
+.meterbar
+{
+	width:100%;
+	background-color: rgb(227, 227, 227);
+	border-radius: 9px;
+	height: 9px;
+
+}
+.meterbar hr
+{
+	height:9px;
+	background-color: #AFE81F;
+	border-style: none;
+	border-radius: 5px;
+	
+}
